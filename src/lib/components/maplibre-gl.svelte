@@ -90,6 +90,18 @@
 	let isDragOver = $state(false);
 	let fileName = $state("");
 
+    /* ── Strava Import state ── */
+    let importMode = $state<"file" | "strava">("file");
+    let stravaUrl = $state("");
+    let stravaId = $derived(
+        stravaUrl.match(/(?:activities\/)(\d+)/)?.[1] || 
+        stravaUrl.match(/^(\d+)$/)?.[1] || 
+        ""
+    );
+    let stravaExportUrl = $derived(
+        stravaId ? `https://www.strava.com/activities/${stravaId}/export_gpx` : ""
+    );
+
 	function handleDragOver(e: DragEvent) {
 		e.preventDefault();
 		isDragOver = true;
@@ -174,8 +186,8 @@
 				</div>
 			</div>
 
-			<div class="field">
-				<label class="field__label">Orientation</label>
+			<div class="field" role="group" aria-labelledby="orientation-label">
+				<span class="field__label" id="orientation-label">Orientation</span>
 				<div class="segmented-control">
 					<button
 						class="segment"
@@ -205,45 +217,91 @@
 
 		<!-- File Upload -->
 		<section class="section">
-			<h3 class="section__heading">GPX Route</h3>
+			<h3 class="section__heading">Route Source</h3>
 
-			<label
-				class="dropzone"
-				class:dropzone--hover={isDragOver}
-				class:dropzone--loaded={fileName}
-				ondragover={handleDragOver}
-				ondragleave={handleDragLeave}
-				ondrop={handleDrop}
-			>
-				<input
-					type="file"
-					accept=".gpx"
-					class="dropzone__input"
-					onchange={handleFileInput}
-				/>
+            <div class="segmented-control" style="margin-bottom: 0.25rem;">
+                <button class="segment" class:segment--active={importMode === 'file'} onclick={() => importMode = 'file'}>File Upload</button>
+                <button class="segment" class:segment--active={importMode === 'strava'} onclick={() => importMode = 'strava'}>Strava Link</button>
+            </div>
 
-				{#if fileName}
-					<div class="dropzone__success">
-						<div class="dropzone__check">
-							<svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-								<path d="M13.333 4L6 11.333L2.667 8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-							</svg>
-						</div>
-						<span class="dropzone__file">{fileName}</span>
-					</div>
-				{:else}
-					<div class="dropzone__idle">
-						<div class="dropzone__icon-ring">
-							<svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-								<path d="M12 16V4M12 4L8 8M12 4L16 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-								<path d="M4 14V18C4 19.1046 4.89543 20 6 20H18C19.1046 20 20 19.1046 20 18V14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-							</svg>
-						</div>
-						<span class="dropzone__text">Drop .gpx file</span>
-						<span class="dropzone__hint">or click to browse</span>
-					</div>
-				{/if}
-			</label>
+            {#if importMode === 'file'}
+                <label
+                    class="dropzone"
+                    class:dropzone--hover={isDragOver}
+                    class:dropzone--loaded={fileName}
+                    ondragover={handleDragOver}
+                    ondragleave={handleDragLeave}
+                    ondrop={handleDrop}
+                >
+                    <input
+                        type="file"
+                        accept=".gpx"
+                        class="dropzone__input"
+                        onchange={handleFileInput}
+                    />
+
+                    {#if fileName}
+                        <div class="dropzone__success">
+                            <div class="dropzone__check">
+                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                    <path d="M13.333 4L6 11.333L2.667 8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </div>
+                            <span class="dropzone__file">{fileName}</span>
+                        </div>
+                    {:else}
+                        <div class="dropzone__idle">
+                            <div class="dropzone__icon-ring">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                                    <path d="M12 16V4M12 4L8 8M12 4L16 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M4 14V18C4 19.1046 4.89543 20 6 20H18C19.1046 20 20 19.1046 20 18V14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </div>
+                            <span class="dropzone__text">Drop .gpx file</span>
+                            <span class="dropzone__hint">or click to browse</span>
+                        </div>
+                    {/if}
+                </label>
+            {:else}
+                <div class="strava-import">
+                    <input 
+                        type="text" 
+                        class="apple-input" 
+                        placeholder="Paste Strava Activity URL..."
+                        bind:value={stravaUrl}
+                    />
+                    {#if stravaExportUrl}
+                        <div class="tutorial-steps">
+                            <div class="step">
+                                <span class="step-num">1</span>
+                                <p>Ensure you are <a href="https://www.strava.com/login" target="_blank" rel="noopener noreferrer">logged into Strava</a>.</p>
+                            </div>
+                            <div class="step">
+                                <span class="step-num">2</span>
+                                <button
+                                    class="btn-primary"
+                                    onclick={() => window.open(stravaExportUrl, "_blank")}
+                                    >
+                                    Download GPX
+                                    </button>
+                                
+                                <!-- <a href={stravaExportUrl} class="btn-primary" style="text-decoration: none;" download>Download GPX</a> -->
+                            </div>
+                            <div class="step">
+                                <span class="step-num">3</span>
+                                <p>Switch to <strong>File Upload</strong> and drop it here.</p>
+                            </div>
+                        </div>
+                    {:else}
+                        <div class="tutorial-steps" style="opacity: 0.5;">
+                            <div class="step">
+                                <span class="step-num">i</span>
+                                <p>Paste a link like:<br/><em>strava.com/activities/12345678</em></p>
+                            </div>
+                        </div>
+                    {/if}
+                </div>
+            {/if}
 
             {#if fileLoaded}
                 <div class="playback-controls">
@@ -612,6 +670,76 @@
 		overflow: hidden;
 		text-overflow: ellipsis;
 		white-space: nowrap;
+	}
+
+    /* ─── Strava Import ─── */
+	.strava-import {
+		display: flex;
+		flex-direction: column;
+		gap: 0.75rem;
+	}
+
+	.apple-input {
+		width: 100%;
+		background: rgba(255, 255, 255, 0.04);
+		border: 0.5px solid rgba(255, 255, 255, 0.1);
+		border-radius: var(--radius-sm);
+		color: var(--text-primary);
+		padding: 0.6rem 0.75rem;
+		font-size: 0.8125rem;
+		font-family: inherit;
+		outline: none;
+		transition: all var(--duration-fast) var(--ease-apple);
+	}
+	.apple-input:focus {
+		border-color: var(--accent);
+		background: rgba(255, 255, 255, 0.08);
+	}
+	.apple-input::placeholder {
+		color: var(--text-quaternary);
+	}
+
+	.tutorial-steps {
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+		padding: 0.75rem;
+		background: rgba(255, 255, 255, 0.02);
+		border-radius: var(--radius-sm);
+		border: 0.5px solid rgba(255, 255, 255, 0.04);
+	}
+
+	.step {
+		display: flex;
+		align-items: flex-start;
+		gap: 0.5rem;
+		font-size: 0.75rem;
+		color: var(--text-secondary);
+		line-height: 1.4;
+	}
+
+	.step-num {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 16px;
+		height: 16px;
+		border-radius: 50%;
+		background: rgba(255, 255, 255, 0.1);
+		color: var(--text-primary);
+		font-size: 0.6rem;
+		font-weight: 600;
+		flex-shrink: 0;
+		margin-top: 2px;
+	}
+
+	.step a {
+		color: var(--accent);
+		text-decoration: underline;
+		text-underline-offset: 2px;
+	}
+	.step a:hover {
+		color: #3aa0ff;
 	}
 
     /* ─── Playback Controls ─── */
