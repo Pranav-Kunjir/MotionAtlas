@@ -293,10 +293,36 @@
                             </div>
                         </div>
                     {:else}
-                        <div class="tutorial-steps" style="opacity: 0.5;">
+                        <div class="tutorial-steps">
+                            <h4 style="font-size: 0.75rem; color: var(--text-primary); margin: 0 0 0.25rem 0; font-weight: 500;">How to get your activity link:</h4>
+                            
                             <div class="step">
-                                <span class="step-num">i</span>
-                                <p>Paste a link like:<br/><em>strava.com/activities/12345678</em></p>
+                                <span class="step-num">1</span>
+                                <div>
+                                    <p style="margin: 0;">Log into <a href="https://www.strava.com/login" target="_blank" rel="noopener noreferrer">Strava</a> in this browser.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="step">
+                                <span class="step-num">2</span>
+                                <div>
+                                    <p style="margin: 0; margin-bottom: 0.25rem;">Go to the <a href="https://www.strava.com/athlete/training" target="_blank" rel="noopener noreferrer">activity page</a> and choose an activity and open it</p>
+                                    <div class="tutorial-image-placeholder">
+                                        <!-- Replace with actual image later -->
+                                        <!-- <div class="tutorial-image">Strava Activity Page Image</div> -->
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="step">
+                                <span class="step-num">3</span>
+                                <div>
+                                    <p style="margin: 0; margin-bottom: 0.25rem;">Copy the URL from the address bar (e.g. <em>strava.com/activities/12345678</em>).</p>
+                                    <div class="tutorial-image-placeholder">
+                                        <!-- Replace with actual image later -->
+                                        <!-- <div class="tutorial-image">Address Bar URL Image</div> -->
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     {/if}
@@ -741,6 +767,26 @@
 	.step a:hover {
 		color: #3aa0ff;
 	}
+
+    .tutorial-image-placeholder {
+        margin-top: 0.25rem;
+        border-radius: var(--radius-sm);
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(0, 0, 0, 0.2);
+    }
+
+    .tutorial-image {
+        width: 100%;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--text-tertiary);
+        font-size: 0.65rem;
+        text-align: center;
+        padding: 0.5rem;
+    }
 
     /* ─── Playback Controls ─── */
     .playback-controls {
