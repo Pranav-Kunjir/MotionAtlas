@@ -1,12 +1,14 @@
 import maplibregl from "maplibre-gl";
-export function createMap(mapContainer:HTMLDivElement){
+import type { ReplaySettings } from "$lib/defaults";
+
+export function createMap(mapContainer:HTMLDivElement,settings:ReplaySettings){
     	const map = new maplibregl.Map({
 			container: mapContainer,
 			// style: "https://demotiles.maplibre.org/style.json",
-            pitch: 70,
+            pitch: settings.pitch,
             hash: true,
             center: [73.8567, 18.5204],
-            zoom :  12,
+            zoom :  settings.zoom,
             style: {
         version: 8,
         sources: {

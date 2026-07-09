@@ -69,7 +69,7 @@ export async function upload(file:File,map:maplibregl.Map,mapLoaded:boolean) {
     });
 
     // Runner
-    const point = {
+    const point: GeoJSON.FeatureCollection<GeoJSON.Point> = {
         type: "FeatureCollection",
         features: [
             {
@@ -84,7 +84,7 @@ export async function upload(file:File,map:maplibregl.Map,mapLoaded:boolean) {
     };
 
     // Completed route
-    const completed = {
+    const completed: GeoJSON.Feature<GeoJSON.LineString> = {
         type: "Feature",
         geometry: {
             type: "LineString",
