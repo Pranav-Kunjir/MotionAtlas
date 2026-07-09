@@ -5,7 +5,6 @@
 	import { replay } from "$lib/map/replay";
 	let mapContainer: HTMLDivElement;
 	let map: maplibregl.Map;
-
 	onMount(() => {
         map = createMap(mapContainer)
         map.addControl(

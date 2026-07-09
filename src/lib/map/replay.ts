@@ -1,18 +1,12 @@
 import maplibregl from 'maplibre-gl'
 import { parseGPX } from '$lib/functions/convertgpx';
+import record from '$lib/map/recorder'
 export async function replay(map:maplibregl.Map,file:File){
     if (!file) return;
     const canvas = map.getCanvas();
-
     const stream = canvas.captureStream(60); // 60 FPS
-
-    const recorder = new MediaRecorder(stream, {
-        mimeType: "video/webm",
-        videoBitsPerSecond: 30_000_000
-    });
-
+    const recorder = record(stream)
     const chunks: Blob[] = [];
-
     recorder.ondataavailable = (e) => {
         chunks.push(e.data);
     };
@@ -47,23 +41,15 @@ export async function replay(map:maplibregl.Map,file:File){
         data: geojson
     });
     const feature = geojson.features[0];
-
     if (!feature || feature.geometry.type !== "LineString") return;
-
     const coords = feature.geometry.coordinates;
-
-    // Fit map to route
     const bounds = new maplibregl.LngLatBounds();
-
     for (const coord of coords) {
         bounds.extend([coord[0], coord[1]]);
     }
-
     map.fitBounds(bounds, {
         padding: 50
     });
-
-    // Runner
     const point = {
         type: "FeatureCollection",
         features: [
@@ -77,8 +63,6 @@ export async function replay(map:maplibregl.Map,file:File){
             }
         ]
     };
-
-    // Completed route
     const completed = {
         type: "Feature",
         geometry: {

@@ -53,7 +53,6 @@ export function createMap(mapContainer:HTMLDivElement){
         },
         maxZoom: 18,
         maxPitch: 85
-
 		});
     return(map)
 }
